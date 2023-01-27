@@ -62,7 +62,7 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 ## Contact
 
-Project Link: [https://github.com/hankliao87/RSS2Raindrop](https://github.com/hankliao87/RSS2Raindrop)
+Project Link: [https://github.com/hankhjliao/RSS2Raindrop](https://github.com/hankhjliao/RSS2Raindrop)
 
 ## Acknowledgements
 - [Raindrop API Documents](https://developer.raindrop.io/)
