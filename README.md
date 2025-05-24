@@ -1,4 +1,27 @@
-# RSS2Raindrop
+<p align="center">
+<h3 align="center">RSS2Raindrop</h3>
+
+<p align="center">
+An awesome tool to save articles from RSS feed to Raindrop.io automatically.
+</p>
+
+<p align="center">
+<a href="https://github.com/hankhjliao/RSS2Raindrop/actions?query=workflow%3Arun">
+<img src="https://img.shields.io/github/actions/workflow/status/hankhjliao/RSS2Raindrop/run.yml?style=flat-square&label=run" alt=""></a>
+<a href="https://github.com/hankhjliao/RSS2Raindrop/graphs/contributors">
+<img src="https://img.shields.io/github/contributors/hankhjliao/RSS2Raindrop.svg?style=flat-square" alt=""></a>
+<a href="https://github.com/hankhjliao/RSS2Raindrop/network/members">
+<img src="https://img.shields.io/github/forks/hankhjliao/RSS2Raindrop.svg?style=flat-square" alt=""></a>
+<a href="https://github.com/hankhjliao/RSS2Raindrop/stargazers">
+<img src="https://img.shields.io/github/stars/hankhjliao/RSS2Raindrop.svg?style=flat-square" alt=""></a>
+<a href="https://github.com/hankhjliao/RSS2Raindrop/issues">
+<img src="https://img.shields.io/github/issues/hankhjliao/RSS2Raindrop.svg?style=flat-square" alt=""></a>
+<a href="https://github.com/hankhjliao/RSS2Raindrop/blob/master/LICENSE.txt">
+<img src="https://img.shields.io/github/license/hankhjliao/RSS2Raindrop.svg?style=flat-square" alt=""></a>
+</p>
+
+</p>
+
 
 ## Steps
 
