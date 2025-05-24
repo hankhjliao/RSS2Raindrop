@@ -1,163 +1,182 @@
-from datetime import datetime
-from io import BytesIO
-
+import argparse
 import json
 import logging
 import os
+import zipfile
 
 import feedparser
 import pandas as pd
 import requests
 import yaml
-import zipfile
 
-CLIENT_ID = os.environ.get('CLIENT_ID', None)
-CLIENT_SECRET = os.environ.get('CLIENT_SECRET', None)
-TOKEN = os.environ.get('TOKEN', None)
+from datetime import datetime
+from io import BytesIO
+from pathlib import Path
 
-NOW = datetime.now()
-REQUEST_TIMEOUT = 10.0
-
-logging.basicConfig(format="%(asctime)s [%(levelname)s] %(message)s",
-                    level=logging.INFO)
+logging.basicConfig(
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    level=logging.INFO,
+)
 
 
-def add_article(url, tags=[]):
-    global TOKEN
-    post_url = 'https://api.raindrop.io/rest/v1/raindrop'
-    tags.append('feed')
-    data = {
-        'link': url,
-        'tags': tags,
-        'pleaseParse': {},
-    }
-    headers = {
-      'Authorization': f'Bearer {TOKEN}',
-      'Content-Type': 'application/json',
-    }
-    ret = requests.post(post_url, data=json.dumps(data), headers=headers)
-    ret = json.loads(ret.text)
-    if ret.get('result', None) is None:
-        logging.error(ret)
-        exit()
-    return ret['result']
+class RSS:
+    def __init__(self, rss_config_path="rss.yaml", rss_database_path="rss_database.zip", request_timeout=10.0):
+        self.TOKEN = os.environ.get("TEST_TOKEN", None)
+        self.url = "https://api.raindrop.io/rest/v1/raindrop"
 
+        self.NOW = datetime.now()
+        self.REQUEST_TIMEOUT = request_timeout
+        self.rss_config_path = rss_config_path
+        self.rss_database_path = rss_database_path
+        self.rss_configs = None
+        self.rss_database = pd.DataFrame(
+            columns=[
+                "feed_url",
+                "saved_item_link_latest",
+                "saved_item_link_second_latest",
+                "updated_time",
+            ]
+        )
 
-def get_last_time_rss_data(rss_url):
-    global rss_database
-    feed_location = rss_database["feed_url"] == rss_url
-    idx = rss_database[feed_location].index.values[0]
-    link_latest = rss_database.loc[idx, "saved_item_link_latest"]
-    link_second_latest = rss_database.loc[idx, "saved_item_link_second_latest"]
-    return idx, link_latest, link_second_latest
-
-
-if os.path.exists('rss.yaml'):
-    with open("rss.yaml", 'r') as stream:
-        try:
-            rss_configs = yaml.safe_load(stream)
-        except Exception as e:
-            logging.error(f"Unexpected error when parsing yaml: {str(e)}")
-            exit()
-else:
-    logging.error("rss.yaml not exists.")
-    exit()
-
-if os.path.exists('rss_database.zip'):
-    rss_database = pd.read_csv('rss_database.zip')
-else:
-    rss_database = pd.DataFrame(columns=["feed_url",
-                                         "saved_item_link_latest",
-                                         "saved_item_link_second_latest",
-                                         "updated_time"])
-
-
-# Iter all the feed configs
-for rss_config in rss_configs:
-
-    # Get the feed config
-    rss_url = rss_config['url']
-    rss_tags = rss_config.get('tags', ['feed'])
-    rss_filter = rss_config.get('filter', '')
-
-    # Get the feed content
-    logging.info(f"Checking {rss_url}")
-    try:
-        resp = requests.get(rss_url, timeout=REQUEST_TIMEOUT)
-    except requests.ReadTimeout:
-        logging.warning(f"Timeout when reading feed: {rss_url}")
-        continue
-    except requests.ConnectionError:
-        logging.warning(f"Cannot access feed: {rss_url}")
-        continue
-    except Exception as e:
-        logging.error(f"Unexpected error: {str(e)}")
-        continue
-    content = BytesIO(resp.content)
-    Feed = feedparser.parse(content)
-
-    # Check the feed is first run or not
-    flag_first_run = False
-    if rss_url not in rss_database["feed_url"].values:
-        rss_database.loc[-1] = {
-            "feed_url": rss_url,
-            "saved_item_link_latest": None,
-            "saved_item_link_second_latest": None,
-            "updated_time": None
+    def addArticle(self, url, tags=[]):
+        tags.append("feed")
+        data = {
+            "link": url,
+            "tags": tags,
+            "pleaseParse": {},
         }
-        rss_database.index = rss_database.index + 1
-        flag_first_run = True
+        headers = {
+            "Authorization": f"Bearer {self.TOKEN}",
+            "Content-Type": "application/json",
+        }
+        ret = requests.post(self.url, data=json.dumps(data), headers=headers)
+        ret = json.loads(ret.text)
+        __import__('pdb').set_trace()
+        if ret.get("result", None) is None:
+            logging.error(ret)
+            return False
+        return ret["result"]
 
-    # Get last time rss data
-    idx, link_latest, link_second_latest = get_last_time_rss_data(rss_url)
-
-    # Sort the article according to the published time
-    try:
-        entries = Feed.get('entries', [])
-        entries = sorted(entries, key=lambda e: e.published_parsed,
-                         reverse=True)
-    except Exception as e:
-        entries = Feed.get('entries', [])
-        logging.error(f"Feed doesn't support published_parsed attribute: {rss_url}")
-
-    # Iter the article in the feed
-    for entry in entries:
-
-        # Break if added
-        if (entry.link == link_latest) or (entry.link == link_second_latest):
-            break
-
-        # Print article information
-        entry_published_time = entry.get('published', None)
-        logging.info(f"Article Info:\n"
-                     f"\tTitle: {entry.title}\n"
-                     f"\tPublished time: {entry_published_time}\n"
-                     f"\tLink: {entry.link}")
-
-        # Add the article
-        if add_article(entry.link, rss_tags):
-            logging.info("Article added")
-
-            # Update the rss database
-            if rss_database.loc[idx, "updated_time"] != NOW:
-                rss_database.loc[idx,
-                                 "saved_item_link_second_latest"] = link_latest
-                rss_database.loc[idx,
-                                 "saved_item_link_latest"] = entry.link
-                rss_database.loc[idx, "updated_time"] = NOW
+    def openRSSConfig(self):
+        if os.path.exists(self.rss_config_path):
+            with open(self.rss_config_path, "r") as stream:
+                try:
+                    self.rss_configs = yaml.safe_load(stream)
+                except Exception as e:
+                    logging.error(f"Unexpected error when parsing yaml: {str(e)}")
+                    exit()
         else:
-            logging.warning(f"Article not added: {entry.link}")
+            logging.error(f"{self.rss_config_path} not exists.")
+            exit()
 
-        # Add only one article when first run
-        if flag_first_run:
-            break
+    def readRSSDatabase(self):
+        if os.path.exists(self.rss_database_path):
+            self.rss_database = pd.read_csv(self.rss_database_path)
+        else:
+            self.rss_database = pd.DataFrame(
+                columns=[
+                    "feed_url",
+                    "saved_item_link_latest",
+                    "saved_item_link_second_latest",
+                    "updated_time",
+                ]
+            )
+
+    def getLastTimeRSSData(self, rss_url):
+        feed_location = self.rss_database["feed_url"] == rss_url
+        idx = self.rss_database[feed_location].index.values[0]
+        link_latest = self.rss_database.loc[idx, "saved_item_link_latest"]
+        link_second_latest = self.rss_database.loc[idx, "saved_item_link_second_latest"]
+        return idx, link_latest, link_second_latest
+
+    def saveRSSDatabase(self):
+        # Save the rss database
+        archive_name = Path(self.rss_database_path).with_suffix(".csv").name
+        self.rss_database.sort_values("feed_url").to_csv(archive_name, index=False)
+
+        # This is for CLI user
+        # As for GitHub Action user, the GitHub Action will compress the csv to zip
+        # file when running upload-artifact@v2
+        with zipfile.ZipFile(self.rss_database_path, "w") as zf:
+            zf.write("rss_database.csv")
+
+    def run(self):
+        # Iter all the feed configs
+        for rss_config in self.rss_configs:
+            # Get the feed config
+            rss_url = rss_config["url"]
+            rss_tags = rss_config.get("tags", ["feed"])
+            rss_filter = rss_config.get("filter", "")
+
+            # Get the feed content
+            logging.info(f"Checking {rss_url}")
+            try:
+                resp = requests.get(rss_url, timeout=self.REQUEST_TIMEOUT)
+            except requests.ReadTimeout:
+                logging.warning(f"Timeout when reading feed: {rss_url}")
+                continue
+            except requests.ConnectionError:
+                logging.warning(f"Cannot access feed: {rss_url}")
+                continue
+            except Exception as e:
+                logging.error(f"Unexpected error: {str(e)}")
+                continue
+            content = BytesIO(resp.content)
+            Feed = feedparser.parse(content)
+
+            # Check the feed is first run or not
+            flag_first_run = False
+            if rss_url not in self.rss_database["feed_url"].values:
+                self.rss_database.loc[-1] = {
+                    "feed_url": rss_url,
+                    "saved_item_link_latest": None,
+                    "saved_item_link_second_latest": None,
+                    "updated_time": None,
+                }
+                self.rss_database.index = self.rss_database.index + 1
+                flag_first_run = True
+
+            # Get last time rss data
+            idx, link_latest, link_second_latest = self.getLastTimeRSSData(rss_url)
+
+            # Sort the article according to the published time
+            try:
+                entries = Feed.get("entries", [])
+                entries = sorted(entries, key=lambda e: e.published_parsed, reverse=True)
+            except Exception as e:
+                entries = Feed.get("entries", [])
+                logging.warning(f"Feed doesn't support published_parsed attribute: {rss_url}")
+
+            # Iter the article in the feed
+            for entry in entries:
+                # Break if added
+                if (entry.link == link_latest) or (entry.link == link_second_latest):
+                    break
+
+                # Print article information
+                entry_published_time = entry.get("published", None)
+                logging.info(f"Article Info:\n\tTitle: {entry.title}\n\tPublished time: {entry_published_time}\n\tLink: {entry.link}")
+
+                # Add the article
+                if self.addArticle(entry.link, rss_tags):
+                    logging.info("Article added")
+
+                    # Update the rss database
+                    if self.rss_database.loc[idx, "updated_time"] != self.NOW:
+                        self.rss_database.loc[idx, "saved_item_link_second_latest"] = link_latest
+                        self.rss_database.loc[idx, "saved_item_link_latest"] = entry.link
+                        self.rss_database.loc[idx, "updated_time"] = self.NOW
+                else:
+                    logging.warning(f"Article not added: {entry.link}")
+
+                # Add only one article when first run
+                if flag_first_run:
+                    break
 
 
-# Save the rss database
-rss_database.sort_values("feed_url").to_csv('rss_database.csv', index=False)
-
-# This is for CLI user
-# As for GitHub Action user, the GitHub Action will compress the csv to zip
-# file when running upload-artifact@v2
-with zipfile.ZipFile('rss_database.zip', 'w') as zf:
-    zf.write('rss_database.csv')
+if __name__ == "__main__":
+    rss2pocket = RSS()
+    rss2pocket.openRSSConfig()
+    rss2pocket.readRSSDatabase()
+    rss2pocket.run()
+    rss2pocket.saveRSSDatabase()
