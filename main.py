@@ -110,7 +110,7 @@ class RSS:
             # Get the feed content
             logging.info(f"Checking {rss_url}")
             try:
-                if rss_url == "https://www.matrix67.com/blog/feed":
+                if rss_url == "http://www.matrix67.com/blog/feed":
                     resp = requests.get(rss_url, timeout=self.REQUEST_TIMEOUT, verify=False)
                 else:
                     resp = requests.get(rss_url, timeout=self.REQUEST_TIMEOUT)
