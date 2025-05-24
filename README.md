@@ -23,49 +23,22 @@ An awesome tool to save articles from RSS feed to Raindrop.io automatically.
 </p>
 
 
-## Steps
+## Getting Started
 
-### The authorization request
+### Install Dependencies (CLI only)
+1. `$ python3 -m pip install --upgrade pip`
+2. `$ pip3 install -r requirements.txt`
 
-```bash
-curl "https://api.raindrop.io/v1/oauth/authorize?client_id=<client_id>"
-```
-Return `<code>`
+## Usage
 
-### Get Token
+### GitHub Action
+1. Fork this project
+2. Edit rss.yaml
+3. Fill `TEST_TOKEN` in the Secrets tab in Settings of the repository.
 
-```bash
-curl -X "POST" "https://raindrop.io/oauth/access_token" \
-     -H 'Content-Type: application/json' \
-     -d $'{
-  "grant_type": "authorization_code"
-  "code": "<code>",
-  "client_id": "<client_id>",
-  "client_secret": "<client_secret>",
-}'
-```
-Return `<token>`
-
-### Refresh Token (every 2 weeks)
-
-```bash
-curl -X "POST" "https://raindrop.io/oauth/access_token" \
-     -H 'Content-Type: application/json' \
-     -d $'{
-  "grant_type": "refresh_token"
-  "refresh_token": "<previous_token>",
-  "client_id": "<client_id>",
-  "client_secret": "<client_secret>",
-}'
-```
-Return new `<token>`
-
-### [Call raindrop api](https://developer.raindrop.io/v1/authentication/calls)
-
-In header:
-```
-Authorization: Bearer <token>
-```
+### CLI
+1. Edit rss.yaml
+2. `$ TEST_TOKEN='test_token' python3 main.py`
 
 ## Known Issues
 
