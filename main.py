@@ -38,13 +38,16 @@ class RSS:
             ]
         )
 
-    def addArticle(self, url, tags=[]):
+    def addArticle(self, url, article_metadata=None, tags=[]):
         tags.append("feed")
         data = {
             "link": url,
             "tags": tags,
-            "pleaseParse": {},
         }
+        if article_metadata is None:
+            data["pleaseParse"] = {}
+        else:
+            data["title"] = article_metadata["title"]
         headers = {
             "Authorization": f"Bearer {self.TOKEN}",
             "Content-Type": "application/json",
@@ -107,6 +110,7 @@ class RSS:
             rss_tags = rss_config.get("tags", ["feed"])
             rss_filter = rss_config.get("filter", "")
             rss_verify = rss_config.get("verify", True)
+            rss_parse = rss_config.get("parse", True)
 
             # Get the feed content
             logging.info(f"Checking {rss_url}")
@@ -157,8 +161,13 @@ class RSS:
                 entry_published_time = entry.get("published", None)
                 logging.info(f"Article Info:\n\tTitle: {entry.title}\n\tPublished time: {entry_published_time}\n\tLink: {entry.link}")
 
+                if not rss_parse:
+                    article_metadata = {"title": entry.title}
+                else:
+                    article_metadata = None
+
                 # Add the article
-                if self.addArticle(entry.link, rss_tags):
+                if self.addArticle(entry.link, article_metadata, rss_tags):
                     logging.info("Article added")
 
                     # Update the rss database
