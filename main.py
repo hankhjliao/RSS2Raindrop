@@ -51,7 +51,6 @@ class RSS:
         }
         ret = requests.post(self.url, data=json.dumps(data), headers=headers)
         ret = json.loads(ret.text)
-        __import__('pdb').set_trace()
         if ret.get("result", None) is None:
             logging.error(ret)
             return False
