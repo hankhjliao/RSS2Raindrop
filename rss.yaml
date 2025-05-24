@@ -1,9 +1,9 @@
 # Attributes:
 #   Required:
-#     url: feed url
+#     url: feed URL
 #   Optional:
-#     name: feed name (not used in program)
-#     tags: tags applied in Pocket (need to be list)
+#     name: feed name (not used in the program)
+#     tags: tags applied in Pocket (need to be a list)
 #     filter: only add the article title pass the filter (not implement)
 #
 # Example:
@@ -12,76 +12,116 @@
 #   tags: [tag1, tag2]
 #   filter: "Test"
 
-# Test for wrong url
+# Test for the wrong URL
 # - url: https://example.com
 # - url: https://a.c
 # - url: apple
 
 # Blog
-- url: https://feeds.feedburner.com/playpc
-  name: 電腦玩物
-  tags: [blog]
+# - url: https://feeds.feedburner.com/playpc
+#   name: 電腦玩物
+#   tags: [blog]
 - url: https://feeds.feedburner.com/ruanyifeng
   name: 阮一峰的网络日志
   tags: [blog]
-- url: https://feeds.feedburner.com/blogspot/gJZg
-  name: Google AI Blog
+# - url: https://feeds.feedburner.com/blogspot/gJZg
+#   name: Google AI Blog
+#   tags: [blog]
+# - url: https://feeds.feedburner.com/GDBcode
+#   name: Google Developers Blog
+#   tags: [blog]
+- url: https://feeds.feedburner.com/blogspot/RLXA
+  name: Google Testing Blog
   tags: [blog]
 - url: https://distill.pub/rss.xml
   name: Distill
   tags: [blog]
 # - url: https://kexue.fm/feed
 #   name: 科学空间
+#   tags: [blog]
 - url: https://lilianweng.github.io/index.xml
   name: Lil’Log
   tags: [blog]
-- url: https://rss.shab.fun/blogs/wordpress/haogroot.com/
-  name: haogroot’s Blog
-  tags: [blog]
-- url: https://cjting.me/index.xml
-  name: CJ Ting’s Blog
-  tags: [blog]
-- url: https://rsshub.app/leemeng
-  tags: [blog]
-# - url: https://kill-the-newsletter.com/feeds/yzvb49b43esijjhr.xml
-#   name: www.workspaces.xyz
+# - url: https://rss.shab.fun/blogs/wordpress/haogroot.com/
+#   name: haogroot’s Blog
+#   tags: [blog]
+# - url: https://cjting.me/index.xml
+#   name: CJ Ting’s Blog
+#   tags: [blog]
 - url: https://sspai.com/feed
   name: 少数派
   tags: [blog]
+- url: https://blog.lilydjwg.me/feed
+  name: 依云’s Blog
+  tags: [blog]
+- url: http://www.matrix67.com/blog/feed
+  name: Matrix67
+  tags: [blog]
+- url: https://research.ibm.com/haifa/ponderthis/rss/index.xml
+  name: IBM Ponder This
+  tags: [blog]
+- url: https://catcoding.me/atom.xml
+  name: 程序员的喵
+  tags: [blog]
+# - url: https://medium.com/feed/@jiayaushiau
+#   name: Medium - Jia-Yau Shiau
+#   tags: [blog]
+# - url: https://medium.com/feed/@netflixtechblog
+#   name: Medium - Netflix Tech Blog
+#   tags: [blog]
+# - url: https://www.robalni.org/posts/posts.rss
+#   name: robalni.org
+#   tags: [blog]
+- url: https://diygod.cc/feed
+  name: DIYgod
+  tags: [blog]
+- url: https://ivonblog.com/index.xml
+  name: Ivon
+  tags: [blog]
+- url: https://blog.kyomind.tw/atom.xml
+  name: Code and Me
+  tags: [blog]
+# - url: https://einverne.github.io/feed.xml
+#   name: Verne in GitHub
+#   tags: [blog]
+- url: https://jvns.ca/atom.xml
+  name: Julia Evans
+  tags: [blog]
+  
 
 # Game
-- url: https://gamejilu.com/rss/
-  name: Gamejilu 遊戲筆記
-  tags: [game]
+# - url: https://gamejilu.com/rss/
+#   name: Gamejilu 遊戲筆記
+#   tags: [game]
 - url: https://www.4gamers.com.tw/rss/latest-news
   name: 4gamers
   tags: [game]
 
 # News
-- url: https://rss.shab.fun/github/issue/headllines/hackernews-daily
+- url: https://rsshub.rssforever.com/github/issue/headllines/hackernews-daily
   name: Hacker News
   tags: [news]
-- url: https://www.ithome.com.tw/rss
-  name: iThome 新聞
+# - url: https://www.ithome.com.tw/rss
+#   name: iThome 新聞
+#   tags: [news]
+# - url: https://global.udn.com/rss/news/1020/8662
+#   name: udn 轉角國際
+#   tags: [news]
+# - url: https://www.twreporter.org/a/rss2.xml
+#   name: 報導者 The Reporter
+#   tags: [news]
+# - url: https://www.phoronix.com/rss.php
+#   name: Phoronix
+#   tags: [news]
+- url: https://archlinux.org/feeds/news/
+  name: Arch News
   tags: [news]
-- url: https://global.udn.com/rss/news/1020/8662
-  name: udn 轉角國際
-  tags: [news]
-- url: https://kill-the-newsletter.com/feeds/8l0fpgvxavoua8af.xml
-  name: 中央社日報
-  tags: [news]
-- url: https://www.twreporter.org/a/rss2.xml
-  name: 報導者 The Reporter
-  tags: [news]
-- url: https://www.phoronix.com/rss.php
-  name: Phoronix
-  tags: [news]
-- url: https://forum.manjaro.org/c/announcements/testing-updates.rss
-  name: Manjaro Testing Updates
-  tags: [news]
-- url: https://feeds.feedburner.com/zhihu-daily
+- url: https://hub.slarker.me/zhihu/daily
   name: 知乎日报
   tags: [news]
+# - url: https://thisweek.gnome.org/index.xml
+#   name: This Week in Gnome
+#   tags: [news]
 
 # Software
 - url: https://feeds.feedburner.com/freegroup
@@ -90,12 +130,8 @@
 - url: https://feeds.appinn.com/appinns/
   name: 小众软件
   tags: [software]
-# - url: https://openingsource.org/feed/
-#   name: 开源工场
-# - url: https://kill-the-newsletter.com/feeds/bogl2fboluknjp7z.xml
-#   name: Probably Nothing
-#   tags: [software]
 
 # Story
-- url: https://api.feeddd.org/feeds/613381f91269c358aa0eada9
-  name: 魔宙
+# - url: https://rsshub.feeded.xyz/wxkol/show/3239197880
+#   name: 魔宙
+#   tags: [story]
