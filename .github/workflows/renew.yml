@@ -1,0 +1,25 @@
+name: Renew CI
+
+on:
+  schedule:
+    - cron: '0 0 1 * *'
+
+jobs:
+  renew:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout codes
+      uses: actions/checkout@v3
+    - name: Renew
+      run: |
+        echo $(date '+%Y-%m-%d %H:%M:%S') > last_renew_time.txt
+    - name: push changes to remote
+      run: |
+        git config --global user.name "renew"
+        git config --global user.email "renew@example.com"
+
+        git add last_renew_time.txt
+        git commit -m "Renew"
+        git push
+
