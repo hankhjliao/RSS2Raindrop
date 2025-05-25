@@ -38,10 +38,10 @@ class RSS:
             ]
         )
 
-    def addArticle(self, url, article_metadata=None, tags=[]):
+    def addArticle(self, article_url, article_metadata=None, tags=[]):
         tags.append("feed")
         data = {
-            "link": url,
+            "link": article_url,
             "tags": tags,
         }
         if article_metadata is None:
@@ -98,7 +98,7 @@ class RSS:
 
         # This is for CLI user
         # As for GitHub Action user, the GitHub Action will compress the csv to zip
-        # file when running upload-artifact@v2
+        # file when running upload-artifact
         with zipfile.ZipFile(self.rss_database_path, "w") as zf:
             zf.write("rss_database.csv")
 
@@ -128,7 +128,7 @@ class RSS:
             content = BytesIO(resp.content)
             feed = feedparser.parse(content)
 
-            # Check the feed is first run or not
+            # Check whether the feed is first run or not
             flag_first_run = False
             if rss_url not in self.rss_database["feed_url"].values:
                 self.rss_database.loc[-1] = {
@@ -143,40 +143,40 @@ class RSS:
             # Get last time rss data
             idx, link_latest, link_second_latest = self.getLastTimeRSSData(rss_url)
 
-            # Sort the article according to the published time
+            # Sort articles according to the published time
             try:
-                entries = feed.get("entries", [])
-                entries = sorted(entries, key=lambda e: e.published_parsed, reverse=True)
+                articles = feed.get("entries", [])
+                articles = sorted(articles, key=lambda e: e.published_parsed, reverse=True)
             except Exception as e:
-                entries = feed.get("entries", [])
+                articles = feed.get("entries", [])
                 logging.warning(f"Feed doesn't support published_parsed attribute: {rss_url}")
 
-            # Iter the article in the feed
-            for entry in entries:
-                # Break if added
-                if (entry.link == link_latest) or (entry.link == link_second_latest):
+            # Iter articles in the feed
+            for article in articles:
+                # Break if the article is added before
+                if (article.link == link_latest) or (article.link == link_second_latest):
                     break
 
                 # Print article information
-                entry_published_time = entry.get("published", None)
-                logging.info(f"Article Info:\n\tTitle: {entry.title}\n\tPublished time: {entry_published_time}\n\tLink: {entry.link}")
+                article_published_time = article.get("published", None)
+                logging.info(f"Article Info:\n\tTitle: {article.title}\n\tPublished time: {article_published_time}\n\tLink: {article.link}")
 
                 if not rss_parse:
-                    article_metadata = {"title": entry.title}
+                    article_metadata = {"title": article.title}
                 else:
                     article_metadata = None
 
                 # Add the article
-                if self.addArticle(entry.link, article_metadata, rss_tags):
+                if self.addArticle(article.link, article_metadata, rss_tags):
                     logging.info("Article added")
 
                     # Update the rss database
                     if self.rss_database.loc[idx, "updated_time"] != self.NOW:
                         self.rss_database.loc[idx, "saved_item_link_second_latest"] = link_latest
-                        self.rss_database.loc[idx, "saved_item_link_latest"] = entry.link
+                        self.rss_database.loc[idx, "saved_item_link_latest"] = article.link
                         self.rss_database.loc[idx, "updated_time"] = self.NOW
                 else:
-                    logging.warning(f"Article not added: {entry.link}")
+                    logging.warning(f"Article not added: {article.link}")
 
                 # Add only one article when first run
                 if flag_first_run:
