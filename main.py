@@ -126,7 +126,7 @@ class RSS:
                 logging.error(f"Unexpected error: {str(e)}")
                 continue
             content = BytesIO(resp.content)
-            Feed = feedparser.parse(content)
+            feed = feedparser.parse(content)
 
             # Check the feed is first run or not
             flag_first_run = False
@@ -145,10 +145,10 @@ class RSS:
 
             # Sort the article according to the published time
             try:
-                entries = Feed.get("entries", [])
+                entries = feed.get("entries", [])
                 entries = sorted(entries, key=lambda e: e.published_parsed, reverse=True)
             except Exception as e:
-                entries = Feed.get("entries", [])
+                entries = feed.get("entries", [])
                 logging.warning(f"Feed doesn't support published_parsed attribute: {rss_url}")
 
             # Iter the article in the feed
