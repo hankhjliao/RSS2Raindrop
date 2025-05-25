@@ -59,7 +59,7 @@ class RSS:
             return False
         return ret["result"]
 
-    def openRSSConfig(self):
+    def readRSSConfig(self):
         if os.path.exists(self.rss_config_path):
             with open(self.rss_config_path, "r") as stream:
                 try:
@@ -185,7 +185,7 @@ class RSS:
 
 if __name__ == "__main__":
     rss2pocket = RSS()
-    rss2pocket.openRSSConfig()
+    rss2pocket.readRSSConfig()
     rss2pocket.readRSSDatabase()
     rss2pocket.run()
     rss2pocket.saveRSSDatabase()
