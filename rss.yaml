@@ -57,7 +57,7 @@
 - url: http://www.matrix67.com/blog/feed
   name: Matrix67
   tags: [blog]
-  parse: False
+  use_metadata: True
   verify: False
 - url: https://research.ibm.com/haifa/ponderthis/rss/index.xml
   name: IBM Ponder This
@@ -121,7 +121,7 @@
 - url: https://hub.slarker.me/zhihu/daily
   name: 知乎日报
   tags: [news]
-  parse: False
+  use_metadata: True
 # - url: https://thisweek.gnome.org/index.xml
 #   name: This Week in Gnome
 #   tags: [news]

@@ -110,7 +110,7 @@ class RSS:
             rss_tags = rss_config.get("tags", ["feed"])
             rss_filter = rss_config.get("filter", "")
             rss_verify = rss_config.get("verify", True)
-            rss_parse = rss_config.get("parse", True)
+            rss_use_metadata = rss_config.get("use_metadata", False)
 
             # Get the feed content
             logging.info(f"Checking {rss_url}")
@@ -161,7 +161,7 @@ class RSS:
                 article_published_time = article.get("published", None)
                 logging.info(f"Article Info:\n\tTitle: {article.title}\n\tPublished time: {article_published_time}\n\tLink: {article.link}")
 
-                if not rss_parse:
+                if rss_use_metadata:
                     article_metadata = {"title": article.title}
                 else:
                     article_metadata = None
