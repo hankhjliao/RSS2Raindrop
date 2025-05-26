@@ -54,6 +54,7 @@
 - url: https://blog.lilydjwg.me/feed
   name: 依云’s Blog
   tags: [blog]
+  use_metadata: True
 - url: http://www.matrix67.com/blog/feed
   name: Matrix67
   tags: [blog]
