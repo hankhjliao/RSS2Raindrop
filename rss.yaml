@@ -126,6 +126,9 @@
 # - url: https://thisweek.gnome.org/index.xml
 #   name: This Week in Gnome
 #   tags: [news]
+- url: https://git.github.io/feed.xml
+  name: git
+  tags: [news]
 
 # Software
 - url: https://feeds.feedburner.com/freegroup
