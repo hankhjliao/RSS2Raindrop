@@ -90,7 +90,9 @@
 - url: https://jvns.ca/atom.xml
   name: Julia Evans
   tags: [blog]
-  
+- url: https://stephango.com/feed.xml
+  name: Steph Ango
+  tags: [blog]
 
 # Game
 # - url: https://gamejilu.com/rss/
