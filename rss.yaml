@@ -121,7 +121,7 @@
 - url: https://archlinux.org/feeds/news/
   name: Arch News
   tags: [news]
-- url: https://rsshub.app/zhihu/daily
+- url: https://rsshub.rssforever.com/zhihu/daily
   name: 知乎日报
   tags: [news]
   use_metadata: True
