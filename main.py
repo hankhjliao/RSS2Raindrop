@@ -114,7 +114,7 @@ class RSS:
             rss_sort_key = rss_config.get("sort_key", "published_parsed")
 
             # Get the feed content
-            logging.info(f"Checking {rss_url}")
+            logging.info(f"Checking {rss_config}")
             try:
                 resp = requests.get(rss_url, timeout=self.REQUEST_TIMEOUT, verify=rss_verify)
             except requests.ReadTimeout:
