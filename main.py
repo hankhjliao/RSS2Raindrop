@@ -111,6 +111,7 @@ class RSS:
             rss_filter = rss_config.get("filter", "")
             rss_verify = rss_config.get("verify", True)
             rss_use_metadata = rss_config.get("use_metadata", False)
+            rss_sort_key = rss_config.get("sort_key", "published_parsed")
 
             # Get the feed content
             logging.info(f"Checking {rss_url}")
@@ -146,7 +147,10 @@ class RSS:
             # Sort articles according to the published time
             try:
                 articles = feed.get("entries", [])
-                articles = sorted(articles, key=lambda e: e.published_parsed, reverse=True)
+                if rss_sort_key == "link":
+                    articles = sorted(articles, key=lambda e: e.link, reverse=True)
+                else:
+                    articles = sorted(articles, key=lambda e: e.published_parsed, reverse=True)
             except Exception as e:
                 articles = feed.get("entries", [])
                 logging.warning(f"Feed doesn't support published_parsed attribute: {rss_url}")

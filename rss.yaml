@@ -125,6 +125,7 @@
   name: 知乎日报
   tags: [news]
   use_metadata: True
+  sort_key: link
 # - url: https://thisweek.gnome.org/index.xml
 #   name: This Week in Gnome
 #   tags: [news]
