@@ -41,6 +41,23 @@ class RSSDatabase:
         if self.rss_database_path != "":
             self.read()
 
+    def isCompatible(self):
+        if len(self.rss_database.index) == 0:
+            return False
+
+        if "rss_database_version" not in self.rss_database.columns:
+            version = "1.0.0"
+        else:
+            idx = self.rss_database["rss_database_version"].first_valid_index()
+            if idx is not None:
+                version = self.rss_database["rss_database_version"].loc[idx]
+            else:
+                version = "1.0.0"
+
+        class_version = list(map(int, self.VERSION.split(".")))
+        version = list(map(int, version.split(".")))
+        return class_version[0] == version[0]
+
     def read(self, rss_database_path=""):
         if rss_database_path == "":
             rss_database_path = self.rss_database_path
@@ -48,6 +65,8 @@ class RSSDatabase:
         self.rss_database_path = rss_database_path
         if os.path.exists(self.rss_database_path):
             self.rss_database = pd.read_csv(self.rss_database_path)
+            if not self.isCompatible():
+                self.rss_database = pd.DataFrame(columns=self.rss_database_columns)
         else:
             self.rss_database = pd.DataFrame(columns=self.rss_database_columns)
 
