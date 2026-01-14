@@ -93,6 +93,8 @@ class RSSDatabase:
             self.rss_database.index = self.rss_database.index + 1
 
     def update(self, key, article_link):
+        if key not in self.rss_database["feed_url"].values:
+            return
         feed_location = self.rss_database["feed_url"] == key
         idx = self.rss_database[feed_location].index.values[0]
         if self.rss_database.loc[idx, "updated_time"] != self.NOW:
