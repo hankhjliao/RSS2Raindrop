@@ -21,15 +21,20 @@ logging.basicConfig(
 
 class RSSDatabase:
     def __init__(self, rss_database_path=""):
-        self.VERSION = 1
+        self.VERSION = "1.0.0"
         self.NOW = datetime.now()
 
         self.rss_database_path = rss_database_path
-        self.rss_database_columns = [
-            "feed_url",
+        self.rss_database_saved_item_link_columns = [
             "saved_item_link_latest",
             "saved_item_link_second_latest",
+        ]
+        self.rss_database_saved_item_link_columns_len = len(self.rss_database_saved_item_link_columns)
+        self.rss_database_columns = [
+            "feed_url",
+            *self.rss_database_saved_item_link_columns,
             "updated_time",
+            "rss_database_version",
         ]
         self.rss_database = pd.DataFrame(columns=self.rss_database_columns)
 
@@ -61,30 +66,36 @@ class RSSDatabase:
             zf.write(str(archive_name))
 
     def add(self, key):
-        self.rss_database.loc[-1] = {
-            "feed_url": key,
-            "saved_item_link_latest": None,
-            "saved_item_link_second_latest": None,
-            "updated_time": None,
-        }
+        rss_database_item = {}
+        for column in self.rss_database_columns:
+            rss_database_item[column] = None
+        rss_database_item["feed_url"] = key
+        rss_database_item["rss_database_version"] = self.VERSION
+
+        self.rss_database.loc[-1] = rss_database_item
         self.rss_database.index = self.rss_database.index + 1
 
     def update(self, key, article_link):
         feed_location = self.rss_database["feed_url"] == key
         idx = self.rss_database[feed_location].index.values[0]
         if self.rss_database.loc[idx, "updated_time"] != self.NOW:
-            self.rss_database.loc[idx, "saved_item_link_second_latest"] = self.rss_database.loc[idx, "saved_item_link_latest"]
+            for i in range(self.rss_database_saved_item_link_columns_len - 1):
+                column_from = self.rss_database_saved_item_link_columns[-i - 2]
+                column_to = self.rss_database_saved_item_link_columns[-i - 1]
+                self.rss_database.loc[idx, column_to] = self.rss_database.loc[idx, column_from]
             self.rss_database.loc[idx, "saved_item_link_latest"] = article_link
             self.rss_database.loc[idx, "updated_time"] = self.NOW
+            self.rss_database.loc[idx, "rss_database_version"] = self.VERSION
 
     def get(self, key):
         if key not in self.rss_database["feed_url"].values:
             return []
         feed_location = self.rss_database["feed_url"] == key
         idx = self.rss_database[feed_location].index.values[0]
-        link_latest = self.rss_database.loc[idx, "saved_item_link_latest"]
-        link_second_latest = self.rss_database.loc[idx, "saved_item_link_second_latest"]
-        return [link_latest, link_second_latest]
+        links = []
+        for column in self.rss_database_saved_item_link_columns:
+            links.append(self.rss_database.loc[idx, column])
+        return links
 
 
 class RSS:
