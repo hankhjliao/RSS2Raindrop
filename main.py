@@ -120,7 +120,7 @@ class RSSDatabase:
 class RSS:
     def __init__(self, rss_config_path="rss.yaml", rss_database_path="rss_database.zip", request_timeout=10.0):
         self.TOKEN = os.environ.get("TEST_TOKEN", None)
-        self.url = "https://api.raindrop.io/rest/v1/raindrop"
+        self.URL = "https://api.raindrop.io/rest/v1/raindrop"
 
         self.REQUEST_TIMEOUT = request_timeout
         self.rss_config_path = rss_config_path
@@ -141,7 +141,7 @@ class RSS:
             "Authorization": f"Bearer {self.TOKEN}",
             "Content-Type": "application/json",
         }
-        ret = requests.post(self.url, data=json.dumps(data), headers=headers)
+        ret = requests.post(self.URL, data=json.dumps(data), headers=headers)
         ret = json.loads(ret.text)
         if ret.get("result", None) is None:
             logging.error(ret)
