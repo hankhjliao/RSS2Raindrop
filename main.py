@@ -19,24 +19,83 @@ logging.basicConfig(
 )
 
 
+class RSSDatabase:
+    def __init__(self, rss_database_path=""):
+        self.VERSION = 1
+        self.NOW = datetime.now()
+
+        self.rss_database_path = rss_database_path
+        self.rss_database_columns = [
+            "feed_url",
+            "saved_item_link_latest",
+            "saved_item_link_second_latest",
+            "updated_time",
+        ]
+        self.rss_database = pd.DataFrame(columns=self.rss_database_columns)
+
+        if self.rss_database_path != "":
+            self.read()
+
+    def read(self, rss_database_path=""):
+        if rss_database_path == "":
+            rss_database_path = self.rss_database_path
+
+        self.rss_database_path = rss_database_path
+        if os.path.exists(self.rss_database_path):
+            self.rss_database = pd.read_csv(self.rss_database_path)
+        else:
+            self.rss_database = pd.DataFrame(columns=self.rss_database_columns)
+
+    def save(self, rss_database_path=""):
+        if rss_database_path == "":
+            rss_database_path = self.rss_database_path
+
+        # Save the rss database
+        archive_name = Path(rss_database_path).with_suffix(".csv").name
+        self.rss_database.sort_values("feed_url").to_csv(archive_name, index=False)
+
+        # This is for CLI user
+        # As for GitHub Action user, the GitHub Action will compress the csv to zip
+        # file when running upload-artifact
+        with zipfile.ZipFile(Path(rss_database_path).with_suffix(".zip").name, "w") as zf:
+            zf.write(str(archive_name))
+
+    def add(self, key):
+        self.rss_database.loc[-1] = {
+            "feed_url": key,
+            "saved_item_link_latest": None,
+            "saved_item_link_second_latest": None,
+            "updated_time": None,
+        }
+        self.rss_database.index = self.rss_database.index + 1
+
+    def update(self, key, article_link):
+        feed_location = self.rss_database["feed_url"] == key
+        idx = self.rss_database[feed_location].index.values[0]
+        if self.rss_database.loc[idx, "updated_time"] != self.NOW:
+            self.rss_database.loc[idx, "saved_item_link_second_latest"] = self.rss_database.loc[idx, "saved_item_link_latest"]
+            self.rss_database.loc[idx, "saved_item_link_latest"] = article_link
+            self.rss_database.loc[idx, "updated_time"] = self.NOW
+
+    def get(self, key):
+        if key not in self.rss_database["feed_url"].values:
+            return []
+        feed_location = self.rss_database["feed_url"] == key
+        idx = self.rss_database[feed_location].index.values[0]
+        link_latest = self.rss_database.loc[idx, "saved_item_link_latest"]
+        link_second_latest = self.rss_database.loc[idx, "saved_item_link_second_latest"]
+        return [link_latest, link_second_latest]
+
+
 class RSS:
     def __init__(self, rss_config_path="rss.yaml", rss_database_path="rss_database.zip", request_timeout=10.0):
         self.TOKEN = os.environ.get("TEST_TOKEN", None)
         self.url = "https://api.raindrop.io/rest/v1/raindrop"
 
-        self.NOW = datetime.now()
         self.REQUEST_TIMEOUT = request_timeout
         self.rss_config_path = rss_config_path
-        self.rss_database_path = rss_database_path
         self.rss_configs = None
-        self.rss_database = pd.DataFrame(
-            columns=[
-                "feed_url",
-                "saved_item_link_latest",
-                "saved_item_link_second_latest",
-                "updated_time",
-            ]
-        )
+        self.rss_database = RSSDatabase(rss_database_path)
 
     def addArticle(self, article_url, article_metadata=None, tags=[]):
         tags.append("feed")
@@ -71,37 +130,6 @@ class RSS:
             logging.error(f"{self.rss_config_path} not exists.")
             exit()
 
-    def readRSSDatabase(self):
-        if os.path.exists(self.rss_database_path):
-            self.rss_database = pd.read_csv(self.rss_database_path)
-        else:
-            self.rss_database = pd.DataFrame(
-                columns=[
-                    "feed_url",
-                    "saved_item_link_latest",
-                    "saved_item_link_second_latest",
-                    "updated_time",
-                ]
-            )
-
-    def getLastTimeRSSData(self, rss_url):
-        feed_location = self.rss_database["feed_url"] == rss_url
-        idx = self.rss_database[feed_location].index.values[0]
-        link_latest = self.rss_database.loc[idx, "saved_item_link_latest"]
-        link_second_latest = self.rss_database.loc[idx, "saved_item_link_second_latest"]
-        return idx, link_latest, link_second_latest
-
-    def saveRSSDatabase(self):
-        # Save the rss database
-        archive_name = Path(self.rss_database_path).with_suffix(".csv").name
-        self.rss_database.sort_values("feed_url").to_csv(archive_name, index=False)
-
-        # This is for CLI user
-        # As for GitHub Action user, the GitHub Action will compress the csv to zip
-        # file when running upload-artifact
-        with zipfile.ZipFile(self.rss_database_path, "w") as zf:
-            zf.write("rss_database.csv")
-
     def run(self):
         # Iter all the feed configs
         for rss_config in self.rss_configs:
@@ -129,20 +157,12 @@ class RSS:
             content = BytesIO(resp.content)
             feed = feedparser.parse(content)
 
-            # Check whether the feed is first run or not
-            flag_first_run = False
-            if rss_url not in self.rss_database["feed_url"].values:
-                self.rss_database.loc[-1] = {
-                    "feed_url": rss_url,
-                    "saved_item_link_latest": None,
-                    "saved_item_link_second_latest": None,
-                    "updated_time": None,
-                }
-                self.rss_database.index = self.rss_database.index + 1
-                flag_first_run = True
-
             # Get last time rss data
-            idx, link_latest, link_second_latest = self.getLastTimeRSSData(rss_url)
+            flag_first_run = False
+            added_links = self.rss_database.get(rss_url)
+            if len(added_links) == 0:
+                self.rss_database.add(rss_url)
+                flag_first_run = True
 
             # Sort articles according to the published time
             try:
@@ -158,7 +178,7 @@ class RSS:
             # Iter articles in the feed
             for article in articles:
                 # Break if the article is added before
-                if (article.link == link_latest) or (article.link == link_second_latest):
+                if article.link in added_links:
                     break
 
                 # Print article information
@@ -175,10 +195,7 @@ class RSS:
                     logging.info("Article added")
 
                     # Update the rss database
-                    if self.rss_database.loc[idx, "updated_time"] != self.NOW:
-                        self.rss_database.loc[idx, "saved_item_link_second_latest"] = link_latest
-                        self.rss_database.loc[idx, "saved_item_link_latest"] = article.link
-                        self.rss_database.loc[idx, "updated_time"] = self.NOW
+                    self.rss_database.update(rss_url, article.link)
                 else:
                     logging.warning(f"Article not added: {article.link}")
 
@@ -190,6 +207,5 @@ class RSS:
 if __name__ == "__main__":
     rss2pocket = RSS()
     rss2pocket.readRSSConfig()
-    rss2pocket.readRSSDatabase()
     rss2pocket.run()
-    rss2pocket.saveRSSDatabase()
+    rss2pocket.rss_database.save()
