@@ -82,14 +82,15 @@ class RSSDatabase:
             zf.write(str(archive_name))
 
     def add(self, key):
-        rss_database_item = {}
-        for column in self.rss_database_columns:
-            rss_database_item[column] = None
-        rss_database_item["feed_url"] = key
-        rss_database_item["rss_database_version"] = self.VERSION
+        if key not in self.rss_database["feed_url"].values:
+            rss_database_item = {}
+            for column in self.rss_database_columns:
+                rss_database_item[column] = None
+            rss_database_item["feed_url"] = key
+            rss_database_item["rss_database_version"] = self.VERSION
 
-        self.rss_database.loc[-1] = rss_database_item
-        self.rss_database.index = self.rss_database.index + 1
+            self.rss_database.loc[-1] = rss_database_item
+            self.rss_database.index = self.rss_database.index + 1
 
     def update(self, key, article_link):
         feed_location = self.rss_database["feed_url"] == key
