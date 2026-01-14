@@ -21,14 +21,11 @@ logging.basicConfig(
 
 class RSSDatabase:
     def __init__(self, rss_database_path=""):
-        self.VERSION = "1.0.0"
+        self.VERSION = "2.0.0"
         self.NOW = datetime.now()
 
         self.rss_database_path = rss_database_path
-        self.rss_database_saved_item_link_columns = [
-            "saved_item_link_latest",
-            "saved_item_link_second_latest",
-        ]
+        self.rss_database_saved_item_link_columns = [f"saved_item_link_latest_{i}" for i in range(10)]
         self.rss_database_saved_item_link_columns_len = len(self.rss_database_saved_item_link_columns)
         self.rss_database_columns = [
             "feed_url",
@@ -102,7 +99,7 @@ class RSSDatabase:
                 column_from = self.rss_database_saved_item_link_columns[-i - 2]
                 column_to = self.rss_database_saved_item_link_columns[-i - 1]
                 self.rss_database.loc[idx, column_to] = self.rss_database.loc[idx, column_from]
-            self.rss_database.loc[idx, "saved_item_link_latest"] = article_link
+            self.rss_database.loc[idx, self.rss_database_saved_item_link_columns[0]] = article_link
             self.rss_database.loc[idx, "updated_time"] = self.NOW
             self.rss_database.loc[idx, "rss_database_version"] = self.VERSION
 
