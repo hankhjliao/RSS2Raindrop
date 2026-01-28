@@ -123,7 +123,7 @@
   tags: [news]
 - url: https://rsshub.rssforever.com/zhihu/daily
   name: 知乎日报
-  tags: [news]
+  tags: [news,zhihu]
   use_metadata: True
 # - url: https://thisweek.gnome.org/index.xml
 #   name: This Week in Gnome
