@@ -131,6 +131,9 @@
 - url: https://git.github.io/feed.xml
   name: git
   tags: [news]
+- url: https://pagedout.institute/rss.xml
+  name: Paged Out
+  tags: [news]
 
 # Software
 - url: https://feeds.feedburner.com/freegroup
