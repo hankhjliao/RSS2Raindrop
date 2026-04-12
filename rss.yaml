@@ -51,6 +51,7 @@
 - url: https://sspai.com/feed
   name: 少数派
   tags: [blog]
+  use_metadata: True
 - url: https://blog.lilydjwg.me/feed
   name: 依云’s Blog
   tags: [blog]
