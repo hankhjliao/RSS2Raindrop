@@ -36,9 +36,9 @@
 - url: https://distill.pub/rss.xml
   name: Distill
   tags: [blog]
-# - url: https://kexue.fm/feed
-#   name: 科学空间
-#   tags: [blog]
+- url: https://kexue.fm/feed
+  name: 科学空间
+  tags: [blog]
 - url: https://lilianweng.github.io/index.xml
   name: Lil’Log
   tags: [blog]
