@@ -39,6 +39,7 @@
 - url: https://kexue.fm/feed
   name: 科学空间
   tags: [blog]
+  use_metadata: True
 - url: https://lilianweng.github.io/index.xml
   name: Lil’Log
   tags: [blog]
