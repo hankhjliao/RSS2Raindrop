@@ -10,7 +10,7 @@ jobs:
 
     steps:
     - name: Checkout codes
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
     - name: Renew
       run: |
         echo $(date '+%Y-%m-%d %H:%M:%S') > last_renew_time.txt
