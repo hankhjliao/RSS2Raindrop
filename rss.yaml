@@ -103,6 +103,7 @@
 - url: https://www.4gamers.com.tw/rss/latest-news
   name: 4gamers
   tags: [game]
+  use_metadata: True
 
 # News
 - url: https://rsshub.rssforever.com/github/issue/headllines/hackernews-daily
