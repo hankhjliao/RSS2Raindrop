@@ -83,6 +83,7 @@
 - url: https://ivonblog.com/index.xml
   name: Ivon
   tags: [blog]
+  use_metadata: True
 - url: https://blog.kyomind.tw/atom.xml
   name: Code and Me
   tags: [blog]
@@ -142,9 +143,11 @@
 - url: https://feeds.feedburner.com/freegroup
   name: 免費資源網路社群
   tags: [software]
+  use_metadata: True
 - url: https://feeds.appinn.com/appinns/
   name: 小众软件
   tags: [software]
+  use_metadata: True
 
 # Story
 # - url: https://rsshub.feeded.xyz/wxkol/show/3239197880
