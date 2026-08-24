@@ -96,6 +96,9 @@
 - url: https://stephango.com/feed.xml
   name: Steph Ango
   tags: [blog]
+- url: https://code.claude.com/docs/en/whats-new/rss.xml
+  name: Claude Code
+  tags: [blog]
 
 # Game
 # - url: https://gamejilu.com/rss/
